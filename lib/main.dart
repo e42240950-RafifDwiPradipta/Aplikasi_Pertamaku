@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
-// Pastikan import ini ada
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  // Pastikan widget Flutter udah siap sebelum Firebase jalan
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Menghubungkan aplikasi ke Firebase beserta Kunci Aksesnya
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyA8M2rGRADHkqnwVkxcjZgmNZ6rdo9d-Ds",
+      appId: "1:533114799646:web:4c293ab68ac36d2b5a500f",
+      messagingSenderId: "533114799646",
+      projectId: "test-project-flutter-2fb29",
+      storageBucket: "test-project-flutter-2fb29.firebasestorage.app",
+    ),
+  );
+
   runApp(const MyApp());
 }
 
@@ -12,9 +27,52 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Jangan pakai const di sini
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      // Ubah halaman awal ke TestFirebasePage untuk Praktikum 7
+      home: const TestFirebasePage(),
+    );
+  }
+}
+
+// --- HALAMAN PRAKTIKUM 7: TES KONEKSI FIREBASE ---
+class TestFirebasePage extends StatelessWidget {
+  const TestFirebasePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Praktikum 7 Firebase"),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
+      body: Center(
+        child: FutureBuilder(
+          // Mengambil data dari collection 'mahasiswa'
+          future: firestore.collection("mahasiswa").get(),
+          builder: (context, snapshot) {
+            // Kalau masih loading
+            if (!snapshot.hasData) {
+              return const Text(
+                "Loading data...",
+                style: TextStyle(fontSize: 18),
+              );
+            }
+            // Kalau sukses dan data berhasil ditarik
+            return const Text(
+              "Data berhasil diambil dari Firebase!",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
+              textAlign: TextAlign.center,
+            );
+          },
+        ),
+      ),
     );
   }
 }
